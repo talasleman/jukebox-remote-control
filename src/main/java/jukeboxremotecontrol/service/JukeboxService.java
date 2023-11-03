@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Service class for business logic related to Jukeboxes.
+ */
 @Service
 public class JukeboxService {
 
@@ -26,6 +29,11 @@ public class JukeboxService {
     private static final String JUKEBOX_API_URL = "http://my-json-server.typicode.com/touchtunes/tech-assignment/jukes";
     private static final String SETTINGS_API_URL = "http://my-json-server.typicode.com/touchtunes/tech-assignment/settings";
 
+    /**
+     * Fetches the list of all jukeboxes from the external API.
+     * 
+     * @return A list of Jukeboxes.
+     */
     public List<Jukebox> fetchJukeboxes() {
         ResponseEntity<List<Jukebox>> response = restTemplate.exchange(
             JUKEBOX_API_URL,
@@ -36,6 +44,11 @@ public class JukeboxService {
         return response.getBody();
     }
     
+    /**
+     * Fetches the settings configuration from the external API.
+     * 
+     * @return Settings configuration.
+     */
     public Settings fetchSettings() {
         ResponseEntity<Settings> response = restTemplate.exchange(
             SETTINGS_API_URL,
@@ -46,7 +59,17 @@ public class JukeboxService {
         return response.getBody();
     }
     
-
+    /**
+     * Filters jukeboxes based on the provided setting ID and optional model filter.
+     * Applies pagination based on offset and limit.
+     * 
+     * @param settingId The setting ID to filter jukeboxes.
+     * @param model     Optional model filter for jukeboxes.
+     * @param offset    Pagination offset.
+     * @param limit     Pagination limit.
+     * @return A list of filtered and paginated jukeboxes.
+     * @throws IOException When an input or output exception occurred.
+     */
     public List<Jukebox> getJukeboxesBySetting(String settingId, String model, int offset, int limit) throws IOException {
         List<Jukebox> allJukeboxes = fetchJukeboxes();
         Settings settings = fetchSettings();
@@ -82,9 +105,6 @@ public class JukeboxService {
     
         return paginatedJukeboxes;
     }
-    
-    
-
 
 }
 

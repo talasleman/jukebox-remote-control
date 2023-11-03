@@ -1,7 +1,9 @@
 package jukeboxremotecontrol.model;
 
 import java.util.List;
-
+/**
+ * Represents the settings configuration for jukeboxes.
+ */
 public class Settings {
 
     private List<Setting> settings;
@@ -13,7 +15,9 @@ public class Settings {
     public void setSettings(List<Setting> settings) {
         this.settings = settings;
     }
-
+    /**
+     * Inner class representing a single Setting with an ID and a list of required components.
+     */
     public static class Setting {
         private String id;
         private List<String> requires;
