@@ -1,4 +1,5 @@
 /Users/talasleman/Documents/GitHub/jukebox-remote-control/src/main/java/jukeboxremotecontrol/model/Jukebox.java
-/Users/talasleman/Documents/GitHub/jukebox-remote-control/src/main/java/jukeboxremotecontrol/repository/JukeboxRepository.java
+/Users/talasleman/Documents/GitHub/jukebox-remote-control/src/main/java/jukeboxremotecontrol/controller/JukeboxController.java
 /Users/talasleman/Documents/GitHub/jukebox-remote-control/src/main/java/jukeboxremotecontrol/Application.java
+/Users/talasleman/Documents/GitHub/jukebox-remote-control/src/main/java/jukeboxremotecontrol/service/JukeboxService.java
 /Users/talasleman/Documents/GitHub/jukebox-remote-control/src/main/java/jukeboxremotecontrol/model/Setting.java
