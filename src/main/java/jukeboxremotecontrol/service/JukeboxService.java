@@ -1,36 +1,90 @@
 package jukeboxremotecontrol.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jukeboxremotecontrol.model.Jukebox;
-import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
+import jukeboxremotecontrol.model.Jukebox.Component;
+import jukeboxremotecontrol.model.Settings;
+import jukeboxremotecontrol.model.Settings.Setting;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class JukeboxService {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private RestTemplate restTemplate;
 
-    public List<Jukebox> findAllJukeboxes() throws IOException {
-    InputStream inputStream = getClass().getResourceAsStream("/db.json");
-    if (inputStream == null) {
-        throw new FileNotFoundException("File 'db.json' not found in classpath");
-    }
-    // Read the root JSON node
-    JsonNode rootNode = mapper.readTree(inputStream);
-    // Get the "jukes" array node from the root node
-    JsonNode jukesNode = rootNode.path("jukes");
-    // Convert the "jukes" node to a list of Jukebox objects
-    return mapper.convertValue(jukesNode, new TypeReference<List<Jukebox>>() {});
-    }
+    private static final String JUKEBOX_API_URL = "http://my-json-server.typicode.com/touchtunes/tech-assignment/jukes";
+    private static final String SETTINGS_API_URL = "http://my-json-server.typicode.com/touchtunes/tech-assignment/settings";
 
+    public List<Jukebox> fetchJukeboxes() {
+        ResponseEntity<List<Jukebox>> response = restTemplate.exchange(
+            JUKEBOX_API_URL,
+            HttpMethod.GET,
+            null,
+            new ParameterizedTypeReference<List<Jukebox>>() {}
+        );
+        return response.getBody();
+    }
+    
+    public Settings fetchSettings() {
+        ResponseEntity<Settings> response = restTemplate.exchange(
+            SETTINGS_API_URL,
+            HttpMethod.GET,
+            null,
+            new ParameterizedTypeReference<Settings>() {}
+        );
+        return response.getBody();
+    }
     
 
+    public List<Jukebox> getJukeboxesBySetting(String settingId, String model, int offset, int limit) throws IOException {
+        List<Jukebox> allJukeboxes = fetchJukeboxes();
+        Settings settings = fetchSettings();
+        List<String> requiredComponents = settings.getSettings().stream()
+                .filter(s -> s.getId().equals(settingId))
+                .findFirst()
+                .map(Setting::getRequires)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid setting ID"))
+                .stream() 
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+    
+                Stream<Jukebox> filteredJukeboxesStream = allJukeboxes.stream()
+                .filter(jukebox -> {
+                    List<String> jukeboxComponentNames = jukebox.getComponents().stream()
+                            .map(Component::getName)
+                            .collect(Collectors.toList());
+                    boolean containsAllComponents = jukeboxComponentNames.containsAll(requiredComponents);
+                    return containsAllComponents;
+                });
+            
+
+
+        if (model != null && !model.isEmpty()) {
+            filteredJukeboxesStream = filteredJukeboxesStream.filter(jukebox -> model.equalsIgnoreCase(jukebox.getModel().trim()));
+        }
+    
+        List<Jukebox> paginatedJukeboxes = filteredJukeboxesStream
+                .skip(offset)
+                .limit(limit)
+                .collect(Collectors.toList());
+    
+        return paginatedJukeboxes;
+    }
+    
+    
+
+
 }
+

@@ -4,6 +4,7 @@ import jukeboxremotecontrol.model.Jukebox;
 import jukeboxremotecontrol.service.JukeboxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,10 +20,14 @@ public class JukeboxController {
         this.jukeboxService = jukeboxService;
     }
 
-    @GetMapping
-    public List<Jukebox> findAllJukeboxes() throws IOException {
-        return jukeboxService.findAllJukeboxes();
+    @GetMapping("/search")
+    public ResponseEntity<?> getJukeboxesBySetting(
+        @RequestParam String settingId,
+        @RequestParam(required = false) String model,
+        @RequestParam(required = false, defaultValue = "0") int offset,
+        @RequestParam(required = false, defaultValue = "10") int limit
+    ) throws IOException {
+        List<Jukebox> filteredJukeboxes = jukeboxService.getJukeboxesBySetting(settingId, model, offset, limit);
+        return ResponseEntity.ok(filteredJukeboxes);
     }
-
-    // add other endpoints here
 }
