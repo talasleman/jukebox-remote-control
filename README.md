@@ -19,8 +19,6 @@ sh
 Copy code
 mvn package
 java -jar target/jukeboxremotecontrol-0.0.1-SNAPSHOT.jar
-Using Maven Spring Boot Plugin
-To run the application using the Maven Spring Boot plugin, execute:
 
 Commands for Maven:
 sh
